@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>CodeBridge</title>
+
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Prism -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-matlab.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+</head>
+
+<body>
+
+<header>
+    <h1>
+        <a href="https://www.fingeruebungen-physik.de/"
+           target="_blank">
+            CodeBridge zu Fingerübungen der Physik
+        </a>
+    </h1>
+
+    <div id="simPath">
+        Kein Beispiel ausgewählt
+    </div>
+</header>
+
+<main>
+
+    <!-- Toolbar-Card -->
+    <div class="card">
+
+        <div id="status"></div>
+
+        <div id="toolbar">
+
+            <div id="leftGroup">
+
+                <div id="languageButtons">
+                </div>
+
+                <button id="sideBySideBtn" class="hidden lang-btn sbs-btn">
+                    Side-by-Side
+                </button>
+
+            </div>
+
+            <div class="actions">
+
+                <a id="githubLink"
+                   href="#"
+                   target="_blank">
+                    GitHub
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Einzelansicht-Card -->
+    <div id="singleViewer" class="card">
+
+        <pre id="viewer" class="line-numbers"><code id="sourceCode"></code></pre>
+
+    </div>
+
+    <!-- Split-Ansicht: zwei separate Cards -->
+    <div id="splitViewer" style="display:none">
+
+        <div class="card split-card">
+            <pre id="panelMatlab" class="panel line-numbers"><code id="codeMatlab" class="language-matlab"></code></pre>
+        </div>
+
+        <div class="card split-card">
+            <pre id="panelPython" class="panel line-numbers"><code id="codePython" class="language-python"></code></pre>
+        </div>
+
+    </div>
+
+</main>
+
+<script src="app.js"></script>
+
+</body>
+</html>

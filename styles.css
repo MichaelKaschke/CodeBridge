@@ -1,0 +1,337 @@
+/* =========================================
+   Design-Tokens
+   ========================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+:root {
+    --accent:      #1565c0;
+    --accent-soft: rgba(21, 101, 192, 0.08);
+
+    --bg:          #e8eaed;          /* dezent grau */
+    --surface:     #ffffff;          /* schwebendes Objekt */
+    --header:      #1a1a2e;          /* tiefes Dunkelblau statt reines Schwarz */
+
+    --border:      #d0d4db;
+    --shadow-sm:   0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+    --shadow-md:   0 4px 12px rgba(0,0,0,.10), 0 2px 6px rgba(0,0,0,.07);
+    --shadow-lg:   0 8px 28px rgba(0,0,0,.13), 0 4px 10px rgba(0,0,0,.08);
+
+    --radius:      12px;
+    --radius-sm:   8px;
+}
+
+/* =========================================
+   Reset & Basis
+   ========================================= */
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--bg);
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 14px;
+    color: #1a1a2e;
+}
+
+/* =========================================
+   Header
+   ========================================= */
+
+header {
+    background: var(--header);
+    color: white;
+    padding: 0 24px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: .01em;
+    white-space: nowrap;
+}
+
+header h1 a {
+    color: white;
+    text-decoration: none;
+    transition: opacity .15s;
+}
+
+header h1 a:hover { opacity: .8; }
+
+#simPath {
+    opacity: .6;
+    font-size: .8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 400;
+}
+
+/* =========================================
+   Main-Wrapper – padding um das Card
+   ========================================= */
+
+main {
+    padding: 10px 14px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: calc(100vh - 48px);
+}
+
+/* =========================================
+   Card (schwebendes Objekt)
+   ========================================= */
+
+.card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+/* =========================================
+   Toolbar
+   ========================================= */
+
+#toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+    background: var(--surface);
+}
+
+#languageButtons {
+    display: flex;
+    gap: 6px;
+}
+
+#leftGroup {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Visueller Abstand zwischen Sprach-Buttons und SBS-Button */
+.sbs-btn {
+    margin-left: 6px;
+    border-color: #999 !important;
+    color: #555 !important;
+}
+
+.sbs-btn:hover {
+    background: rgba(0,0,0,.05) !important;
+}
+
+.sbs-btn.active {
+    background: #1a1a2e !important;
+    color: white !important;
+    border-color: #1a1a2e !important;
+}
+
+.lang-btn {
+    border: 1.5px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: .8rem;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background .15s, color .15s, box-shadow .15s;
+}
+
+.lang-btn:hover {
+    background: var(--accent-soft);
+    box-shadow: var(--shadow-sm);
+}
+
+.lang-btn.active {
+    background: var(--accent);
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Feste Farben pro Sprache – unabhängig von --accent */
+
+#btn-matlab               { border-color: #1565c0; color: #1565c0; }
+#btn-matlab:hover         { background: rgba(21, 101, 192, 0.07); }
+#btn-matlab.active        { background: #1565c0; color: white; border-color: #1565c0; }
+
+#btn-python               { border-color: #c62828; color: #c62828; }
+#btn-python:hover         { background: rgba(198, 40, 40, 0.07); }
+#btn-python.active        { background: #c62828; color: white; border-color: #c62828; }
+
+#btn-notebook             { border-color: #7b1fa2; color: #7b1fa2; }
+#btn-notebook:hover       { background: rgba(123, 31, 162, 0.07); }
+#btn-notebook.active      { background: #7b1fa2; color: white; border-color: #7b1fa2; }
+
+.actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.actions a,
+.actions button {
+    border: 1px solid var(--border);
+    padding: 5px 14px;
+    background: var(--surface);
+    text-decoration: none;
+    color: #444;
+    border-radius: 20px;
+    font-size: .8rem;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background .15s, box-shadow .15s, border-color .15s;
+}
+
+.actions a:hover,
+.actions button:hover {
+    background: #f4f4f4;
+    border-color: #bbb;
+    box-shadow: var(--shadow-sm);
+}
+
+#sideBySideBtn.active {
+    background: #1a1a2e;
+    color: white;
+    border-color: #1a1a2e;
+}
+
+/* =========================================
+   Status
+   ========================================= */
+
+#status:empty {
+    display: none;
+}
+
+#status {
+    padding: 12px 16px;
+    font-style: italic;
+    color: #666;
+    border-bottom: 1px solid var(--border);
+}
+
+/* =========================================
+   Viewer (Einzelansicht) – schwebendes Card
+   ========================================= */
+
+#viewer {
+    margin: 0;
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    border-radius: 0 0 var(--radius) var(--radius);
+    position: relative;
+}
+
+/* =========================================
+   Split-Viewer
+   ========================================= */
+
+/* (splitViewer styles weiter oben) */
+
+
+.panel-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.panel-wrapper + .panel-wrapper {
+    border-left: 2px solid var(--border);
+}
+
+.panel-label {
+    padding: 5px 16px;
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    background: #f7f8fa;
+    border-bottom: 1px solid var(--border);
+    color: var(--accent);
+}
+
+.panel {
+    flex: 1;
+    margin: 0;
+    overflow: auto;
+    border-radius: 0;
+    position: relative;
+}
+
+/* =========================================
+   Utilities
+   ========================================= */
+
+/* Einzelansicht-Card */
+
+#singleViewer {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.hidden { display: none; }
+
+/* Split-Ansicht: zwei separate schwebende Cards */
+
+#splitViewer {
+    flex: 1;
+    min-height: 0;
+    gap: 10px;
+}
+
+.split-card {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.split-card .panel {
+    border-radius: 0 0 var(--radius) var(--radius);
+}
+
+/* =========================================
+   Hintergrundfarben per Sprache
+   ========================================= */
+
+.bg-matlab,
+#panelMatlab,
+pre.bg-matlab  { background: #f4f7ff !important; }
+
+.bg-python,
+#panelPython.bg-python,
+pre.bg-python  { background: #fff6f6 !important; }
+
+.bg-notebook,
+#panelPython.bg-notebook,
+pre.bg-notebook{ background: #fdf7ff !important; }
+
+/* =========================================
+   Line-numbers Einzug
+   ========================================= */
+
+pre[class*="language-"].line-numbers {
+    padding-left: 3.8em;
+}
