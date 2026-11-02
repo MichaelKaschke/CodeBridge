@@ -265,8 +265,8 @@ function showSideBySide() {
     const sim = getSimPath();
     if (sim) {
         const base = getBaseName(sim);
-        bindOwBtn("owMatlabBtn", "matlab",    files.matlab.content,       base);
-        bindOwBtn("owPythonBtn", rightLang,   files[rightLang].content,   base);
+        bindDownloadBtn("dlMatlabBtn", "matlab",  files.matlab.content,       base);
+        bindDownloadBtn("dlPythonBtn", rightLang, files[rightLang].content,   base);
     }
 }
 
@@ -386,11 +386,11 @@ function showLanguage(
             "active"
         );
 
-    // Open-With Button aktualisieren
+    // Download-Button aktualisieren
     const sim = getSimPath();
     if (sim) {
-        bindOwBtn(
-            "owSingleBtn",
+        bindDownloadBtn(
+            "dlSingleBtn",
             language,
             files[language].content,
             getBaseName(sim)
@@ -399,154 +399,178 @@ function showLanguage(
 }
 
 /* ------------------------------------- */
-/* Open With                             */
+/* Hilfsfunktionen                       */
 /* ------------------------------------- */
-
-const OW_APPS = {
-    matlab: [
-        { label: "MATLAB",       icon: "🔷", ext: ".m"  },
-        { label: "VS Code",      icon: "🟦", ext: ".m"  },
-        { label: "Texteditor",   icon: "📄", ext: ".m"  },
-    ],
-    python: [
-        { label: "Spyder",       icon: "🔴", ext: ".py" },
-        { label: "VS Code",      icon: "🟦", ext: ".py" },
-        { label: "Jupyter",      icon: "🟠", ext: ".py" },
-        { label: "Texteditor",   icon: "📄", ext: ".py" },
-    ],
-    notebook: [
-        { label: "Jupyter",      icon: "🟠", ext: ".py" },
-        { label: "Spyder",       icon: "🔴", ext: ".py" },
-        { label: "VS Code",      icon: "🟦", ext: ".py" },
-        { label: "Texteditor",   icon: "📄", ext: ".py" },
-    ],
-};
-
-let owActiveBtnEl = null;
-let owContent = null;
-let owBaseName = null;
 
 function getBaseName(sim) {
     return sim.split("/").pop();
 }
 
-function downloadCode(content, baseName, ext) {
 
-    const blob = new Blob(
-        [content],
-        { type: "text/plain;charset=utf-8" }
-    );
+/* ------------------------------------- */
+/* IndexedDB – Verzeichnis merken        */
+/* ------------------------------------- */
 
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = baseName + ext;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+const DB_NAME    = "CodeBridgeDB";
+const DB_STORE   = "dirHandles";
+const DB_VERSION = 1;
 
-    closeOwMenu();
-}
+function openDB() {
 
-function buildOwMenu(lang) {
+    return new Promise((resolve, reject) => {
 
-    const container =
-        document.getElementById("owMenuItems");
+        const req =
+            indexedDB.open(DB_NAME, DB_VERSION);
 
-    container.innerHTML = "";
+        req.onupgradeneeded = e =>
+            e.target.result.createObjectStore(DB_STORE);
 
-    (OW_APPS[lang] || []).forEach(app => {
+        req.onsuccess =
+            e => resolve(e.target.result);
 
-        const btn =
-            document.createElement("button");
-
-        btn.className = "ow-item";
-
-        btn.innerHTML =
-            `<span class="ow-item-icon">${app.icon}</span>` +
-            `<span>${app.label}</span>` +
-            `<span class="ow-item-ext">${app.ext}</span>`;
-
-        btn.addEventListener("click", () =>
-            downloadCode(
-                owContent,
-                owBaseName,
-                app.ext
-            )
-        );
-
-        container.appendChild(btn);
+        req.onerror =
+            e => reject(e.target.error);
     });
 }
 
-function openOwMenu(btnEl, lang, content, baseName) {
+async function getDirHandle(key) {
 
-    owActiveBtnEl = btnEl;
-    owContent = content;
-    owBaseName = baseName;
+    const db = await openDB();
 
-    buildOwMenu(lang);
+    return new Promise((resolve, reject) => {
 
-    const menu =
-        document.getElementById("owMenu");
+        const req =
+            db.transaction(DB_STORE, "readonly")
+              .objectStore(DB_STORE)
+              .get(key);
 
-    menu.classList.remove("hidden");
+        req.onsuccess =
+            e => resolve(e.target.result ?? null);
 
-    const rect = btnEl.getBoundingClientRect();
-
-    menu.style.top =
-        (rect.bottom + 6) + "px";
-
-    menu.style.right =
-        (window.innerWidth - rect.right) + "px";
-
-    menu.style.left = "auto";
+        req.onerror =
+            e => reject(e.target.error);
+    });
 }
 
-function closeOwMenu() {
+async function setDirHandle(key, handle) {
 
-    document
-        .getElementById("owMenu")
-        .classList.add("hidden");
+    const db = await openDB();
 
-    owActiveBtnEl = null;
+    return new Promise((resolve, reject) => {
+
+        const req =
+            db.transaction(DB_STORE, "readwrite")
+              .objectStore(DB_STORE)
+              .put(handle, key);
+
+        req.onsuccess = () => resolve();
+        req.onerror   = e => reject(e.target.error);
+    });
 }
 
-function bindOwBtn(btnId, lang, content, baseName) {
+
+/* ------------------------------------- */
+/* Download                              */
+/* ------------------------------------- */
+
+function dirKey(lang) {
+    return lang === "matlab" ? "matlab" : "python";
+}
+
+function fileExt(lang) {
+    return lang === "matlab" ? ".m" : ".py";
+}
+
+async function downloadFile(lang, content, baseName) {
+
+    const key      = dirKey(lang);
+    const ext      = fileExt(lang);
+    const filename = baseName + ext;
+
+    // File System Access API (Chrome / Edge)
+    if (window.showDirectoryPicker) {
+
+        try {
+
+            let dirHandle =
+                await getDirHandle(key);
+
+            // Rechte für gespeichertes Verzeichnis anfragen
+            if (dirHandle) {
+
+                const perm =
+                    await dirHandle.requestPermission(
+                        { mode: "readwrite" }
+                    );
+
+                if (perm !== "granted") {
+                    dirHandle = null;
+                }
+            }
+
+            // Kein gültiges Verzeichnis → Nutzer wählen lassen
+            if (!dirHandle) {
+
+                dirHandle =
+                    await window.showDirectoryPicker(
+                        { mode: "readwrite" }
+                    );
+
+                await setDirHandle(key, dirHandle);
+            }
+
+            const fileHandle =
+                await dirHandle.getFileHandle(
+                    filename, { create: true }
+                );
+
+            const writable =
+                await fileHandle.createWritable();
+
+            await writable.write(content);
+            await writable.close();
+
+            return;
+
+        } catch (err) {
+
+            if (err.name === "AbortError") return;
+            // Anderer Fehler → Fallback
+        }
+    }
+
+    // Fallback: Blob-Download (Firefox, Safari, …)
+    const blob =
+        new Blob(
+            [content],
+            { type: "text/plain;charset=utf-8" }
+        );
+
+    const url = URL.createObjectURL(blob);
+    const a   = document.createElement("a");
+    a.href     = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    setTimeout(
+        () => URL.revokeObjectURL(url),
+        1000
+    );
+}
+
+
+function bindDownloadBtn(btnId, lang, content, baseName) {
 
     const btn =
         document.getElementById(btnId);
 
     if (!btn) return;
 
-    btn.onclick = (e) => {
-
-        e.stopPropagation();
-
-        if (owActiveBtnEl === btn) {
-            closeOwMenu();
-        } else {
-            openOwMenu(
-                btn, lang, content, baseName
-            );
-        }
-    };
+    btn.onclick = () =>
+        downloadFile(lang, content, baseName);
 }
-
-document.addEventListener("click", (e) => {
-
-    const menu =
-        document.getElementById("owMenu");
-
-    if (
-        !menu.classList.contains("hidden") &&
-        !menu.contains(e.target) &&
-        e.target !== owActiveBtnEl
-    ) {
-        closeOwMenu();
-    }
-});
 
 
 /* ------------------------------------- */

@@ -76,7 +76,7 @@
     <!-- Einzelansicht-Card -->
     <div id="singleViewer" class="card">
 
-        <button class="ow-btn" id="owSingleBtn" title="Als Datei öffnen">Open with ▾</button>
+        <button class="dl-btn" id="dlSingleBtn" title="Datei herunterladen">Download ↓</button>
 
         <pre id="viewer" class="line-numbers"><code id="sourceCode"></code></pre>
 
@@ -86,12 +86,12 @@
     <div id="splitViewer" style="display:none">
 
         <div class="card split-card">
-            <button class="ow-btn" id="owMatlabBtn" title="Als Datei öffnen">Open with ▾</button>
+            <button class="dl-btn" id="dlMatlabBtn" title="Datei herunterladen">Download ↓</button>
             <pre id="panelMatlab" class="panel line-numbers"><code id="codeMatlab" class="language-matlab"></code></pre>
         </div>
 
         <div class="card split-card">
-            <button class="ow-btn" id="owPythonBtn" title="Als Datei öffnen">Open with ▾</button>
+            <button class="dl-btn" id="dlPythonBtn" title="Datei herunterladen">Download ↓</button>
             <pre id="panelPython" class="panel line-numbers"><code id="codePython" class="language-python"></code></pre>
         </div>
 
@@ -101,12 +101,6 @@
 
 <script src="app.js"></script>
 
-<!-- Shared Open-With Dropdown (position:fixed via JS) -->
-<div id="owMenu" class="hidden" role="menu" aria-label="Öffnen mit">
-    <div class="ow-menu-header">Öffnen mit …</div>
-    <div id="owMenuItems"></div>
-    <div class="ow-menu-hint">⬇ Datei wird heruntergeladen</div>
-</div>
 
 </body>
 </html>
