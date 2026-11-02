@@ -260,6 +260,14 @@ function showSideBySide() {
     document
         .getElementById("sideBySideBtn")
         .classList.add("active");
+
+    // Open-With Buttons für beide Panels
+    const sim = getSimPath();
+    if (sim) {
+        const base = getBaseName(sim);
+        bindOwBtn("owMatlabBtn", "matlab",    files.matlab.content,       base);
+        bindOwBtn("owPythonBtn", rightLang,   files[rightLang].content,   base);
+    }
 }
 
 
@@ -377,7 +385,168 @@ function showLanguage(
         .classList.add(
             "active"
         );
+
+    // Open-With Button aktualisieren
+    const sim = getSimPath();
+    if (sim) {
+        bindOwBtn(
+            "owSingleBtn",
+            language,
+            files[language].content,
+            getBaseName(sim)
+        );
+    }
 }
+
+/* ------------------------------------- */
+/* Open With                             */
+/* ------------------------------------- */
+
+const OW_APPS = {
+    matlab: [
+        { label: "MATLAB",       icon: "🔷", ext: ".m"  },
+        { label: "VS Code",      icon: "🟦", ext: ".m"  },
+        { label: "Texteditor",   icon: "📄", ext: ".m"  },
+    ],
+    python: [
+        { label: "Spyder",       icon: "🔴", ext: ".py" },
+        { label: "VS Code",      icon: "🟦", ext: ".py" },
+        { label: "Jupyter",      icon: "🟠", ext: ".py" },
+        { label: "Texteditor",   icon: "📄", ext: ".py" },
+    ],
+    notebook: [
+        { label: "Jupyter",      icon: "🟠", ext: ".py" },
+        { label: "Spyder",       icon: "🔴", ext: ".py" },
+        { label: "VS Code",      icon: "🟦", ext: ".py" },
+        { label: "Texteditor",   icon: "📄", ext: ".py" },
+    ],
+};
+
+let owActiveBtnEl = null;
+let owContent = null;
+let owBaseName = null;
+
+function getBaseName(sim) {
+    return sim.split("/").pop();
+}
+
+function downloadCode(content, baseName, ext) {
+
+    const blob = new Blob(
+        [content],
+        { type: "text/plain;charset=utf-8" }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = baseName + ext;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+    closeOwMenu();
+}
+
+function buildOwMenu(lang) {
+
+    const container =
+        document.getElementById("owMenuItems");
+
+    container.innerHTML = "";
+
+    (OW_APPS[lang] || []).forEach(app => {
+
+        const btn =
+            document.createElement("button");
+
+        btn.className = "ow-item";
+
+        btn.innerHTML =
+            `<span class="ow-item-icon">${app.icon}</span>` +
+            `<span>${app.label}</span>` +
+            `<span class="ow-item-ext">${app.ext}</span>`;
+
+        btn.addEventListener("click", () =>
+            downloadCode(
+                owContent,
+                owBaseName,
+                app.ext
+            )
+        );
+
+        container.appendChild(btn);
+    });
+}
+
+function openOwMenu(btnEl, lang, content, baseName) {
+
+    owActiveBtnEl = btnEl;
+    owContent = content;
+    owBaseName = baseName;
+
+    buildOwMenu(lang);
+
+    const menu =
+        document.getElementById("owMenu");
+
+    menu.classList.remove("hidden");
+
+    const rect = btnEl.getBoundingClientRect();
+
+    menu.style.top =
+        (rect.bottom + 6) + "px";
+
+    menu.style.right =
+        (window.innerWidth - rect.right) + "px";
+
+    menu.style.left = "auto";
+}
+
+function closeOwMenu() {
+
+    document
+        .getElementById("owMenu")
+        .classList.add("hidden");
+
+    owActiveBtnEl = null;
+}
+
+function bindOwBtn(btnId, lang, content, baseName) {
+
+    const btn =
+        document.getElementById(btnId);
+
+    if (!btn) return;
+
+    btn.onclick = (e) => {
+
+        e.stopPropagation();
+
+        if (owActiveBtnEl === btn) {
+            closeOwMenu();
+        } else {
+            openOwMenu(
+                btn, lang, content, baseName
+            );
+        }
+    };
+}
+
+document.addEventListener("click", (e) => {
+
+    const menu =
+        document.getElementById("owMenu");
+
+    if (
+        !menu.classList.contains("hidden") &&
+        !menu.contains(e.target) &&
+        e.target !== owActiveBtnEl
+    ) {
+        closeOwMenu();
+    }
+});
 
 
 /* ------------------------------------- */
